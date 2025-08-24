@@ -1,11 +1,12 @@
 // ==UserScript==
-// @name         MediaExpert cart
+// @name         Euro-Ole cart
 // @namespace    http://tampermonkey.net/
-// @version      1.8
-// @description  Dodaje przycisk do dodawania produktów do koszyka MediaExpert
+// @version      1.1
+// @description  Dodaje przycisk do dodawania produktów do koszyka Euro
 // @author       You
-// @match        https://*.mediaexpert.pl/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=mediaexpert.pl
+// @match        https://*.oleole.pl/*
+// @match        https://*.euro.com.pl/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=euro.com.pl
 // @grant        none
 // @run-at       document-end
 // ==/UserScript==
@@ -13,30 +14,36 @@
 (function () {
   "use strict";
 
+  const buttonCfg = [
+    { name: "btnDobry", outletCategory: 29888140193, offset: 60, categoryName: "dobry" },
+    { name: "btnDoskonaly", outletCategory: 29888140185, offset: 10, categoryName: "doskonały" },
+  ];
+
   console.log("📜 Tampermonkey script MediaExpert Dywersant został załadowany!");
 
   // Funkcja dodawania produktu do koszyka
-  const addToCartDywersant = async (productId) => {
+  const addToCartDywersant = async (productId, outletCategory) => {
     try {
-      const response = await fetch("https://www.mediaexpert.pl/api/carts/items", {
+      const response = await fetch(`https://${window.location.hostname}/rest/api/carts/`, {
         headers: {
-          accept: "application/vnd.enp.api+json;version=v3",
-          "cart-v2": "false",
+          accept: "application/json, text/plain, */*",
+          "Accept-Language": "en-US,en;q=0.5",
           "content-type": "application/json",
-          "content-website": "4",
-          "x-spark": "hybrid",
         },
-        body: `{"offer_id":${productId},"quantity":1}`,
-        method: "PUT",
+        referrer: `https://${window.location.hostname}/`,
+        referrerPolicy: "strict-origin-when-cross-origin",
+        body: `{\"product\":\"${productId}\",\"addedFrom\":\"PRODUCT_CARD\",\"cameFrom\":\"string\",\"services\":[],\"outletCategory\":${outletCategory}}`,
+        method: "POST",
+        mode: "cors",
       });
 
-      if (response.status === 201) {
+      if (response.status === 200) {
         console.log("\n\nAdded to cart\n\n");
         showNotification("✅ Produkt dodany do koszyka!", "success");
       } else {
         const responseData = await response.json();
         console.log(responseData.message);
-        showNotification("❌ Błąd: " + responseData.message, "error");
+        showNotification("❌ Błąd: " + responseData.reasonCode, "error");
       }
     } catch (error) {
       console.error("Błąd podczas dodawania produktu:", error);
@@ -103,43 +110,34 @@
   const getProductId = () => {
     console.log("🔍 Szukam ID produktu...");
 
-    // Szukaj meta tag z property="t_offer_id"
-    const metaTag = document.querySelector('meta[property="t_offer_id"]');
-    console.log("Meta tag t_offer_id:", metaTag);
-    if (metaTag && metaTag.content) {
-      console.log("✅ Znaleziono ID z meta tag:", metaTag.content);
-      return metaTag.content;
+    const sel = document.querySelector(".product-page .product-information__codes");
+    if (!sel) {
+      console.log("❌ Nie znaleziono ID produktu");
+      return null;
     }
 
-    console.log("❌ Nie znaleziono ID produktu");
-    return null;
+    return +sel.textContent.replace(/\D/g, "");
   };
 
   // Funkcja dodawania przycisku
-  const addDywersantButton = () => {
-    console.log("🚀 Próba dodania przycisku...");
-
-    const productId = getProductId();
-    console.log("Product ID:", productId);
-
+  const addDywersantButton = (btnConfig, productId) => {
     // Sprawdź czy przycisk już istnieje
-    const oldButton = document.getElementById("dywersant-button");
+    const oldButton = document.getElementById(btnConfig.name);
     if (!productId) {
       oldButton || oldButton.remove();
       return;
     }
+    console.log("🚀 Próba dodania przycisku...");
     if (oldButton) {
       console.log("⚠️ Przycisk już istnieje");
       return;
     }
 
-    console.log("🔍 Szukam miejsca na przycisk...");
-
     // Stwórz przycisk
     const button = document.createElement("button");
-    button.id = "dywersant-button";
+    button.id = btnConfig.name;
     button.textContent = productId
-      ? `🛒 Do koszyka (ID: ${productId})`
+      ? `🛒 Do koszyka (Stan: ${btnConfig.categoryName})`
       : "🛒 PRZYCISK TESTOWY - Nie znaleziono ID produktu";
 
     button.style.cssText = `
@@ -158,7 +156,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             position: fixed;
-            top: 10px;
+            top: ${btnConfig.offset}px;
             left: 10px;
             z-index: 9999;
             max-width: 200px;
@@ -191,7 +189,7 @@
       const originalText = button.textContent;
       button.textContent = "⏳ Dodawanie...";
 
-      await addToCartDywersant(productId);
+      await addToCartDywersant(productId, btnConfig.outletCategory);
 
       setTimeout(() => {
         button.disabled = false;
@@ -201,26 +199,29 @@
 
     // Wstaw przycisk
     document.body.appendChild(button);
-
-    console.log(`✅ Dodano przycisk dywersanta${productId ? ` dla produktu ID: ${productId}` : " (testowy)"}`);
   };
 
   // Inicjalizacja
   const init = () => {
+    console.log("🔧 Inicjalizacja Tampermonkey script...");
+    console.log("URL:", window.location.href);
+    console.log("Ready state:", document.readyState);
+
+    const productId = getProductId();
     // Dodaj przycisk od razu
-    addDywersantButton();
+    buttonCfg.forEach((btn) => addDywersantButton(btn, productId));
 
-    //         // Poczekaj chwilę na załadowanie się strony i spróbuj ponownie
-    //         setTimeout(() => {
-    //             console.log('⏰ Próba ponowna po 1 sekundzie...');
-    //             addDywersantButton();
-    //         }, 1000);
+    // // Poczekaj chwilę na załadowanie się strony i spróbuj ponownie
+    // setTimeout(() => {
+    //   console.log("⏰ Próba ponowna po 1 sekundzie...");
+    //   addDywersantButton();
+    // }, 1000);
 
-    //         // Jeszcze jedna próba po 3 sekundach
-    //         setTimeout(() => {
-    //             console.log('⏰ Próba ponowna po 3 sekundach...');
-    //             addDywersantButton();
-    //         }, 3000);
+    // // Jeszcze jedna próba po 3 sekundach
+    // setTimeout(() => {
+    //   console.log("⏰ Próba ponowna po 3 sekundach...");
+    //   addDywersantButton();
+    // }, 3000);
   };
 
   // Uruchom inicjalizację
@@ -246,15 +247,19 @@
       console.log("🔄 Zmiana URL wykryta:", url);
 
       // Usuń stary przycisk jeśli istnieje
-      const oldButton = document.getElementById("dywersant-button");
-      if (oldButton) {
-        oldButton.remove();
-      }
+      buttonCfg.forEach((btn) => {
+        const oldButton = document.getElementById(btn.name);
+        if (oldButton) {
+          oldButton.remove();
+        }
+      });
 
       // Dodaj nowy przycisk po chwili
       setTimeout(init, 1000);
     }
   });
 
-  urlObserver.observe(document, { subtree: true, childList: true });
+  urlObserver.observe(document, { subtree: true, childList: true, attributes: true });
+
+  console.log("🎯 Tampermonkey script gotowy!");
 })();
