@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MediaExpert Dywersant
 // @namespace    http://tampermonkey.net/
-// @version      1.4
+// @version      1.5
 // @description  Dodaje przycisk do dodawania produktów do koszyka MediaExpert
 // @author       You
 // @match        https://*.mediaexpert.pl/*
@@ -58,8 +58,8 @@
     notification.textContent = message;
     notification.style.cssText = `
             position: fixed;
-            top: 150px;
-            left: 10px;
+            top: 10px;
+            left: 50px;
             background: ${type === "success" ? "#4CAF50" : "#f44336"};
             color: white;
             padding: 8px 16px;
