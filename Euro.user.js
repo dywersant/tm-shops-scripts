@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Euro-Ole cart
 // @namespace    http://tampermonkey.net/
-// @version      1.7
+// @version      1.8
 // @description  Dodaje przycisk do dodawania produktów do koszyka Euro
 // @author       You
 // @match        https://*.oleole.pl/*
@@ -83,6 +83,9 @@
           if (item.individualOutletProducts.length) huCode = item.individualOutletProducts[0].huCode;
         });
         // if (huCode) showNotification(`✅ Dostępny stan dostateczny: ${huCode}`, "success");
+      } else if (response.status === 403) {
+        console.log(responseData.message);
+        showNotification("❌ Błąd: 403, ZABLOKOWANY przez stronę", "error");
       } else {
         console.log(responseData.message);
         showNotification("❌ Błąd: " + responseData.reasonCode, "error");
