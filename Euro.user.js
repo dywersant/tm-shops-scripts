@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Euro-Ole cart
 // @namespace    http://tampermonkey.net/
-// @version      1.5
+// @version      1.6
 // @description  Dodaje przycisk do dodawania produktów do koszyka Euro
 // @author       You
 // @match        https://*.oleole.pl/*
@@ -72,7 +72,7 @@
         referrerPolicy: "strict-origin-when-cross-origin",
         body: null,
         method: "GET",
-        // credentials: "omit",
+        credentials: "omit",
         // "credentials": "include",
         mode: "cors",
       });
