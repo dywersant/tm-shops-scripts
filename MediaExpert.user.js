@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MediaExpert Dywersant
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.3
 // @description  Dodaje przycisk do dodawania produktów do koszyka MediaExpert
 // @author       You
 // @match        https://*.mediaexpert.pl/*
@@ -58,8 +58,8 @@
     notification.textContent = message;
     notification.style.cssText = `
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 30px;
+            left: 10px;
             background: ${type === "success" ? "#4CAF50" : "#f44336"};
             color: white;
             padding: 8px 16px;
@@ -67,8 +67,8 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             z-index: 10000;
             font-family: Arial, sans-serif;
-            font-size: 10px;
-            max-width: 150px;
+            font-size: 12px;
+            max-width: 200px;
             word-wrap: break-word;
             animation: slideIn 0.3s ease;
         `;
@@ -96,7 +96,7 @@
     setTimeout(() => {
       notification.style.animation = "slideOut 0.3s ease";
       setTimeout(() => notification.remove(), 300);
-    }, 3000);
+    }, 2000);
   };
 
   // Funkcja pobierania ID produktu ze strony
@@ -139,7 +139,7 @@
     const button = document.createElement("button");
     button.id = "dywersant-button";
     button.textContent = productId
-      ? `🛒 Dodaj produkt do koszyka (ID: ${productId})`
+      ? `🛒 Do koszyka (ID: ${productId})`
       : "🛒 PRZYCISK TESTOWY - Nie znaleziono ID produktu";
 
     button.style.cssText = `
