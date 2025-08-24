@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Euro-Ole cart
 // @namespace    http://tampermonkey.net/
-// @version      1.8
+// @version      1.9
 // @description  Dodaje przycisk do dodawania produktów do koszyka Euro
 // @author       You
 // @match        https://*.oleole.pl/*
@@ -165,7 +165,7 @@
 
   // Funkcja dodawania przycisku
   const addDywersantButton = (btnConfig, productId) => {
-    if (window.location.hostname != "www.oleole.pl") return;
+    if (btnConfig.needsHuCode && window.location.hostname != "www.oleole.pl") return;
     const oldButton = document.getElementById(btnConfig.name);
     if (!productId) {
       if (oldButton) oldButton.remove();
