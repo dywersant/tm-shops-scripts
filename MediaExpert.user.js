@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MediaExpert Dywersant
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @description  Dodaje przycisk do dodawania produktów do koszyka MediaExpert
 // @author       You
 // @match        https://*.mediaexpert.pl/*
