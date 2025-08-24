@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MediaExpert Dywersant
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Dodaje przycisk do dodawania produktów do koszyka MediaExpert
 // @author       You
 // @match        https://*.mediaexpert.pl/*
@@ -67,8 +67,8 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             z-index: 10000;
             font-family: Arial, sans-serif;
-            font-size: 14px;
-            max-width: 300px;
+            font-size: 7px;
+            max-width: 150px;
             word-wrap: break-word;
             animation: slideIn 0.3s ease;
         `;
@@ -147,7 +147,7 @@
             color: white;
             border: none;
             padding: 12px 24px;
-            font-size: 16px;
+            font-size: 9px;
             font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
@@ -161,7 +161,7 @@
             top: 10px;
             left: 10px;
             z-index: 9999;
-            max-width: 400px;
+            max-width: 200px;
             word-wrap: break-word;
         `;
 
