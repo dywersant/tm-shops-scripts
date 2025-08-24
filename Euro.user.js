@@ -17,12 +17,17 @@
   const buttonCfg = [
     { name: "btnDobry", outletCategory: 29888140193, offset: 60, categoryName: "dobry" },
     { name: "btnDoskonaly", outletCategory: 29888140185, offset: 10, categoryName: "doskonały" },
+    {
+      name: "btnDostateczny",
+      outletCategory: 37177506729,
+      offset: 110,
+      categoryName: "dostateczny",
+      needsHuCode: true,
+    },
   ];
 
-  console.log("📜 Tampermonkey script MediaExpert Dywersant został załadowany!");
-
   // Funkcja dodawania produktu do koszyka
-  const addToCartDywersant = async (productId, outletCategory) => {
+  const addToCartDywersant = async (productId, outletCategory, huCode) => {
     try {
       const response = await fetch(`https://${window.location.hostname}/rest/api/carts/`, {
         headers: {
@@ -32,7 +37,9 @@
         },
         referrer: `https://${window.location.hostname}/`,
         referrerPolicy: "strict-origin-when-cross-origin",
-        body: `{\"product\":\"${productId}\",\"addedFrom\":\"PRODUCT_CARD\",\"cameFrom\":\"string\",\"services\":[],\"outletCategory\":${outletCategory}}`,
+        body: `{\"product\":\"${productId}\",\"addedFrom\":\"PRODUCT_CARD\",\"cameFrom\":\"string\",\"services\":[],\"outletCategory\":${outletCategory}${
+          huCode ? `,\"huCode\":\"${huCode}\"` : ""
+        }}`,
         method: "POST",
         mode: "cors",
       });
@@ -51,6 +58,40 @@
     }
   };
 
+  const getHuCode = async (productId) => {
+    if (!productId || window.location.hostname != "www.oleole.pl") return;
+    let huCode;
+    try {
+      const response = await fetch(`https://www.oleole.pl/rest/api/products/${productId}/outlet-details`, {
+        headers: {
+          accept: "application/json, text/plain, */*",
+          "Accept-Language": "en-US,en;q=0.5",
+          "content-type": "application/json",
+        },
+        referrer: `https://www.oleole.pl/`,
+        referrerPolicy: "strict-origin-when-cross-origin",
+        body: null,
+        method: "GET",
+        mode: "cors",
+      });
+
+      const responseData = await response.json();
+      if (response.status === 200) {
+        responseData.forEach((item) => {
+          if (item.individualOutletProducts.length) huCode = item.individualOutletProducts[0].huCode;
+        });
+        // if (huCode) showNotification(`✅ Dostępny stan dostateczny: ${huCode}`, "success");
+      } else {
+        console.log(responseData.message);
+        showNotification("❌ Błąd: " + responseData.reasonCode, "error");
+      }
+    } catch (error) {
+      // console.error("Błąd podczas dodawania produktu:", error);
+      showNotification("❌ Wystąpił błąd podczas zapytania outlet-details", "error");
+    }
+    return huCode;
+  };
+
   // Funkcja wyświetlania powiadomień
   const showNotification = (message, type) => {
     // Usuń poprzednie powiadomienie jeśli istnieje
@@ -63,7 +104,7 @@
     notification.textContent = message;
     notification.style.cssText = `
             position: fixed;
-            top: 150px;
+            top: 160px;
             left: 20px;
             background: ${type === "success" ? "#4CAF50" : "#f44336"};
             color: white;
@@ -119,7 +160,6 @@
 
   // Funkcja dodawania przycisku
   const addDywersantButton = (btnConfig, productId) => {
-    // Sprawdź czy przycisk już istnieje
     const oldButton = document.getElementById(btnConfig.name);
     if (!productId) {
       if (oldButton) oldButton.remove();
@@ -177,17 +217,20 @@
     // Obsługa kliknięcia
     button.addEventListener("click", async (e) => {
       e.preventDefault();
-      if (!productId) {
-        showNotification("❌ Nie znaleziono ID produktu na tej stronie!", "error");
-        console.log("Sprawdź konsolę przeglądarki (F12) aby zobaczyć logi.");
-        return;
-      }
 
       button.disabled = true;
       const originalText = button.textContent;
       button.textContent = "⏳ Dodawanie...";
 
-      await addToCartDywersant(productId, btnConfig.outletCategory);
+      const getProp = (name) => {
+        for (let i of buttonCfg) {
+          if (i.name == name) return i;
+        }
+      };
+      let huCode;
+      if (getProp(button.id).needsHuCode) huCode = await getHuCode(productId);
+
+      await addToCartDywersant(productId, btnConfig.outletCategory, huCode);
 
       setTimeout(() => {
         button.disabled = false;
@@ -200,26 +243,15 @@
   };
 
   // Inicjalizacja
-  const init = () => {
+  const init = async () => {
     console.log("🔧 Inicjalizacja Tampermonkey script...");
     console.log("URL:", window.location.href);
     console.log("Ready state:", document.readyState);
 
     const productId = getProductId();
+
     // Dodaj przycisk od razu
     buttonCfg.forEach((btn) => addDywersantButton(btn, productId));
-
-    // // Poczekaj chwilę na załadowanie się strony i spróbuj ponownie
-    // setTimeout(() => {
-    //   console.log("⏰ Próba ponowna po 1 sekundzie...");
-    //   addDywersantButton();
-    // }, 1000);
-
-    // // Jeszcze jedna próba po 3 sekundach
-    // setTimeout(() => {
-    //   console.log("⏰ Próba ponowna po 3 sekundach...");
-    //   addDywersantButton();
-    // }, 3000);
   };
 
   // Uruchom inicjalizację
