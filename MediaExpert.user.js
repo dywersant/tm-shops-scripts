@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MediaExpert cart
 // @namespace    http://tampermonkey.net/
-// @version      1.8
+// @version      1.9
 // @description  Dodaje przycisk do dodawania produktów do koszyka MediaExpert
 // @author       You
 // @match        https://*.mediaexpert.pl/*
@@ -125,7 +125,7 @@
     // Sprawdź czy przycisk już istnieje
     const oldButton = document.getElementById("dywersant-button");
     if (!productId) {
-      oldButton || oldButton.remove();
+      if (oldButton) oldButton.remove();
       return;
     }
     if (oldButton) {

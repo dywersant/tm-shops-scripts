@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Euro-Ole cart
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @description  Dodaje przycisk do dodawania produktów do koszyka Euro
 // @author       You
 // @match        https://*.oleole.pl/*
@@ -55,9 +55,7 @@
   const showNotification = (message, type) => {
     // Usuń poprzednie powiadomienie jeśli istnieje
     const existingNotification = document.getElementById("dywersant-notification");
-    if (existingNotification) {
-      existingNotification.remove();
-    }
+    if (existingNotification) existingNotification.remove();
 
     // Stwórz nowe powiadomienie
     const notification = document.createElement("div");
@@ -124,7 +122,7 @@
     // Sprawdź czy przycisk już istnieje
     const oldButton = document.getElementById(btnConfig.name);
     if (!productId) {
-      oldButton || oldButton.remove();
+      if (oldButton) oldButton.remove();
       return;
     }
     console.log("🚀 Próba dodania przycisku...");
@@ -225,27 +223,28 @@
   };
 
   // Uruchom inicjalizację
-  console.log("Document ready state:", document.readyState);
-
   if (document.readyState === "loading") {
-    console.log("⏳ Strona się ładuje, czekam na DOMContentLoaded...");
     document.addEventListener("DOMContentLoaded", () => {
-      console.log("✅ DOM załadowany!");
-      init();
+      try {
+        init();
+      } catch (error) {
+        console.log("error in init " + error);
+      }
     });
   } else {
-    console.log("✅ DOM już gotowy, uruchamiam init...");
-    init();
+    try {
+      init();
+    } catch (error) {
+      console.log("error in init " + error);
+    }
   }
 
-  // Obsługa nawigacji SPA (Single Page Application)
   let lastUrl = location.href;
   const urlObserver = new MutationObserver(() => {
     const url = location.href;
     if (url !== lastUrl) {
       lastUrl = url;
       console.log("🔄 Zmiana URL wykryta:", url);
-
       // Usuń stary przycisk jeśli istnieje
       buttonCfg.forEach((btn) => {
         const oldButton = document.getElementById(btn.name);
@@ -259,7 +258,5 @@
     }
   });
 
-  urlObserver.observe(document, { subtree: true, childList: true, attributes: true });
-
-  console.log("🎯 Tampermonkey script gotowy!");
+  urlObserver.observe(document, { subtree: true, childList: true });
 })();
