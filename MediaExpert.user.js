@@ -62,12 +62,12 @@
             right: 20px;
             background: ${type === "success" ? "#4CAF50" : "#f44336"};
             color: white;
-            padding: 12px 20px;
+            padding: 8px 16px;
             border-radius: 4px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             z-index: 10000;
             font-family: Arial, sans-serif;
-            font-size: 7px;
+            font-size: 10px;
             max-width: 150px;
             word-wrap: break-word;
             animation: slideIn 0.3s ease;
@@ -139,14 +139,14 @@
     const button = document.createElement("button");
     button.id = "dywersant-button";
     button.textContent = productId
-      ? `🛒 Dodaj produkt do koszyka by dywersant (ID: ${productId})`
+      ? `🛒 Dodaj produkt do koszyka (ID: ${productId})`
       : "🛒 PRZYCISK TESTOWY - Nie znaleziono ID produktu";
 
     button.style.cssText = `
             background: ${productId ? "#e74c3c" : "#orange"};
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 8px 18px;
             font-size: 9px;
             font-weight: bold;
             border-radius: 4px;
