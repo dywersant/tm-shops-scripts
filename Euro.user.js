@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Euro-Ole cart
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.3
 // @description  Dodaje przycisk do dodawania produktów do koszyka Euro
 // @author       You
 // @match        https://*.oleole.pl/*
@@ -225,18 +225,10 @@
   // Uruchom inicjalizację
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
-      try {
-        init();
-      } catch (error) {
-        console.log("error in init " + error);
-      }
+      init();
     });
   } else {
-    try {
-      init();
-    } catch (error) {
-      console.log("error in init " + error);
-    }
+    init();
   }
 
   let lastUrl = location.href;
