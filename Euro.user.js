@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Euro-Ole cart
 // @namespace    http://tampermonkey.net/
-// @version      1.9
+// @version      1.10
 // @description  Dodaje przycisk do dodawania produktów do koszyka Euro
 // @author       You
 // @match        https://*.oleole.pl/*
@@ -15,12 +15,13 @@
   "use strict";
 
   const buttonCfg = [
-    { name: "btnDobry", outletCategory: 29888140193, offset: 60, categoryName: "dobry" },
-    { name: "btnDoskonaly", outletCategory: 29888140185, offset: 10, categoryName: "doskonały" },
+    { name: "btnNowy", outletCategory: null, offset: 10, categoryName: "nowy" },
+    { name: "btnDoskonaly", outletCategory: 29888140185, offset: 60, categoryName: "doskonały" },
+    { name: "btnDobry", outletCategory: 29888140193, offset: 110, categoryName: "dobry" },
     {
       name: "btnDostateczny",
       outletCategory: 37177506729,
-      offset: 110,
+      offset: 160,
       categoryName: "dostateczny",
       needsHuCode: true,
     },
@@ -29,6 +30,7 @@
   // Funkcja dodawania produktu do koszyka
   const addToCartDywersant = async (productId, outletCategory, huCode) => {
     try {
+      const outletBody = outletCategory ? `,\"outletCategory\":${outletCategory}${huCode ? `,\"huCode\":\"${huCode}\"` : ""}` : "";
       const response = await fetch(`https://${window.location.hostname}/rest/api/carts/`, {
         headers: {
           accept: "application/json, text/plain, */*",
@@ -37,9 +39,7 @@
         },
         referrer: `https://${window.location.hostname}/`,
         referrerPolicy: "strict-origin-when-cross-origin",
-        body: `{\"product\":\"${productId}\",\"addedFrom\":\"PRODUCT_CARD\",\"cameFrom\":\"string\",\"services\":[],\"outletCategory\":${outletCategory}${
-          huCode ? `,\"huCode\":\"${huCode}\"` : ""
-        }}`,
+        body: `{\"product\":\"${productId}\",\"addedFrom\":\"PRODUCT_CARD\",\"cameFrom\":\"string\",\"services\":[]${outletBody}}`,
         method: "POST",
         mode: "cors",
       });
@@ -109,7 +109,7 @@
     notification.textContent = message;
     notification.style.cssText = `
             position: fixed;
-            top: 160px;
+            top: 210px;
             left: 20px;
             background: ${type === "success" ? "#4CAF50" : "#f44336"};
             color: white;
@@ -180,9 +180,7 @@
     // Stwórz przycisk
     const button = document.createElement("button");
     button.id = btnConfig.name;
-    button.textContent = productId
-      ? `🛒 Do koszyka (Stan: ${btnConfig.categoryName})`
-      : "🛒 PRZYCISK TESTOWY - Nie znaleziono ID produktu";
+    button.textContent = productId ? `🛒 Do koszyka (Stan: ${btnConfig.categoryName})` : "🛒 PRZYCISK TESTOWY - Nie znaleziono ID produktu";
 
     button.style.cssText = `
             background: ${productId ? "#e74c3c" : "#orange"};
