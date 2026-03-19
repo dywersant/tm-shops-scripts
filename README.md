@@ -3,4 +3,4 @@
 
 [Install Euro script in TamperMonkey](https://github.com/dywersant/tm-shops-scripts/raw/refs/heads/main/Euro.user.js)
 
-[Install Allegro script in TamperMonkey](https://github.com/dywersant/tm-shops-scripts/raw/refs/heads/main/Allegro.cart.js)
+[Install Allegro script in TamperMonkey](https://github.com/dywersant/tm-shops-scripts/raw/refs/heads/main/Allegro.user.js)
