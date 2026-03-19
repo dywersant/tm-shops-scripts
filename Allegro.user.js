@@ -19,7 +19,7 @@
   // Funkcja dodawania produktu do koszyka
   const addToCartDywersant = async (productId) => {
     try {
-      var body = '{"items":[{"itemId":"${productId}","delta":1,"navTree":"navigation-pl"}]}';
+      var body = `{"items":[{"itemId":"${productId}","delta":1,"navTree":"navigation-pl"}]}`;
       var jsonType = "application/vnd.allegro.public.v5+json";
       var req = new XMLHttpRequest();
       req.open("POST", "//edge." + window.location.host + "/carts/changeQuantityCommand", true);
