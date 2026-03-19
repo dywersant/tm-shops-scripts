@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Allegro cart
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Dodaje przycisk do dodawania produktów do koszyka Allegro
 // @author       You
 // @match        https://*.allegro.pl/oferta/*
